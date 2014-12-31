@@ -29,11 +29,18 @@ func main() {
 
 	startedChan := make(chan bool)
 	logger.Log.Info("starting deis-cache...")
-	process.StartProcessAsChild(startedChan, "/app/bin/redis-server", redisConf)
+	process.StartProcessAsChild("/app/bin/redis-server", redisConf)
+	process.WaitForLocalConnection(startedChan)
 	<-startedChan
 
 	process.Publish(etcdPath, externalPort)
 	logger.Log.Info("deis-cache running...")
+
+	onExit := func() {
+		logger.Log.Debug("terminating deis-cache...")
+	}
+
+	init.ExecuteOnExit(onExit)
 }
 
 func replaceMaxmemoryInConfig(maxmemory string) {

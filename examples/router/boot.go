@@ -51,11 +51,12 @@ func main() {
 	init.Publish(hostEtcdPath, externalPort)
 	logger.Log.Info("deis-router running...")
 
-	cleanTailOnExit := func() {
+	onExit := func() {
+		logger.Log.Debug("terminating deis-router...")
 		tail.Cleanup()
 	}
 
-	init.ExecuteOnExit(cleanTailOnExit)
+	init.ExecuteOnExit(onExit)
 }
 
 func tailFile(path string) {
