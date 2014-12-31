@@ -39,7 +39,7 @@ func CopyFile(dst, src string) (int64, error) {
 	return io.Copy(df, sf)
 }
 
-func StartServiceCommand(startedChan chan bool, protocol string, testPort string, command string, args ...string) {
+func StartServiceCommand(command string, args ...string) {
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -51,6 +51,11 @@ func StartServiceCommand(startedChan chan bool, protocol string, testPort string
 		os.Exit(1)
 	}
 
+	err = cmd.Wait()
+	logger.Log.Printf("command finished with error: %v", err)
+}
+
+func WaitForLocalConnection(startedChan chan bool, protocol string, testPort string) {
 	for {
 		_, err := net.DialTimeout(protocol, "127.0.0.1:"+testPort, networkWaitTime)
 		if err == nil {
@@ -58,7 +63,4 @@ func StartServiceCommand(startedChan chan bool, protocol string, testPort string
 			break
 		}
 	}
-
-	err = cmd.Wait()
-	logger.Log.Printf("command finished with error: %v", err)
 }

@@ -2,6 +2,9 @@ package boot
 
 import (
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/coreos/go-etcd/etcd"
@@ -57,15 +60,23 @@ func (this *Boot) Publish(path string, port string) {
 	go commons.PublishService(this.Etcd, this.Host.String(), path, port, uint64(ttl.Seconds()), timeout)
 }
 
-func (this *Boot) StartProcessAsChild(startedChan chan bool, command string, args ...string) {
-	go commons.StartServiceCommand(startedChan, this.Protocol, this.Port, command, args...)
+func (this *Boot) StartProcessAsChild(command string, args ...string) {
+	go commons.StartServiceCommand(command, args...)
+}
+
+func (this *Boot) WaitForLocalConnection(startedChan chan bool, port string) {
+	if port == "" {
+		port = this.Port
+	}
+
+	go commons.WaitForLocalConnection(startedChan, this.Protocol, port)
 }
 
 // ExecuteOnExit tasks to be executed when the process ends (included ctrl+c)
 func (this *Boot) ExecuteOnExit(functions ...func()) {
 	exitChan := make(chan os.Signal, 2)
 	signal.Notify(exitChan, syscall.SIGTERM, syscall.SIGINT)
-	for function := range functions {
+	for _, function := range functions {
 		function()
 	}
 	<-exitChan
