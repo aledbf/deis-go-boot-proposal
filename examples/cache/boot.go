@@ -18,10 +18,9 @@ func main() {
 	externalPort := commons.Getopt("EXTERNAL_PORT", "6379")
 	etcdPath := commons.Getopt("ETCD_PATH", "/deis/cache")
 
-	process := boot.New("tcp", externalPort)
+	bootProcess := boot.New("tcp", externalPort)
 
-	// custom max memory
-	maxmemory := commons.GetEtcd(process.Etcd, "/deis/cache/maxmemory")
+	maxmemory := commons.GetEtcd(bootProcess.Etcd, "/deis/cache/maxmemory")
 	if maxmemory == "" {
 		maxmemory = defaultMemory
 	}
@@ -29,18 +28,18 @@ func main() {
 
 	startedChan := make(chan bool)
 	logger.Log.Info("starting deis-cache...")
-	process.StartProcessAsChild("/app/bin/redis-server", redisConf)
-	process.WaitForLocalConnection(startedChan)
+	bootProcess.StartProcessAsChild("/app/bin/redis-server", redisConf)
+	bootProcess.WaitForLocalConnection(startedChan)
 	<-startedChan
 
-	process.Publish(etcdPath, externalPort)
+	bootProcess.Publish(etcdPath, externalPort)
 	logger.Log.Info("deis-cache running...")
 
 	onExit := func() {
 		logger.Log.Debug("terminating deis-cache...")
 	}
 
-	init.ExecuteOnExit(onExit)
+	bootProcess.ExecuteOnExit(onExit)
 }
 
 func replaceMaxmemoryInConfig(maxmemory string) {

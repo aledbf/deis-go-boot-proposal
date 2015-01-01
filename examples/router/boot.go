@@ -1,10 +1,7 @@
 package main
 
 import (
-	"net"
 	"os"
-	"os/exec"
-	"os/signal"
 	"syscall"
 	"time"
 
@@ -25,30 +22,31 @@ func main() {
 	externalPort := commons.Getopt("EXTERNAL_PORT", "80")
 	etcdPath := commons.Getopt("ETCD_PATH", "/deis/router")
 
-	process := boot.New("tcp", externalPort)
+	bootProcess := boot.New("tcp", externalPort)
 
 	logger.Log.Debug("creating required defaults in etcd...")
-	commons.MkdirEtcd(process.Etcd, "/deis/controller")
-	commons.MkdirEtcd(process.Etcd, "/deis/services")
-	commons.MkdirEtcd(process.Etcd, "/deis/domains")
-	commons.MkdirEtcd(process.Etcd, "/deis/builder")
-	commons.MkdirEtcd(process.Etcd, "/deis/router/hosts")
+	commons.MkdirEtcd(bootProcess.Etcd, "/deis/controller")
+	commons.MkdirEtcd(bootProcess.Etcd, "/deis/services")
+	commons.MkdirEtcd(bootProcess.Etcd, "/deis/domains")
+	commons.MkdirEtcd(bootProcess.Etcd, "/deis/builder")
+	commons.MkdirEtcd(bootProcess.Etcd, "/deis/router/hosts")
 
-	commons.SetDefaultEtcd(process.Etcd, etcdPath+"/gzip", "on")
+	commons.SetDefaultEtcd(bootProcess.Etcd, etcdPath+"/gzip", "on")
 
 	// tail the logs
 	go tailFile(nginxAccessLog)
 	go tailFile(nginxErrorLog)
 	go tailFile(gitLogFile)
 
-	nginxChan := make(chan bool)
+	startedChan := make(chan bool)
 	logger.Log.Info("starting deis-router...")
-	go launchNginx(nginxChan, "tcp", externalPort, "/opt/nginx/sbin/nginx", "-c", "/opt/nginx/conf/nginx.conf")
-	<-nginxChan
+	bootProcess.StartProcessAsChild("/opt/nginx/sbin/nginx", "-c", "/opt/nginx/conf/nginx.conf")
+	bootProcess.WaitForLocalConnection(startedChan)
+	<-startedChan
 
-	hostEtcdPath := commons.Getopt("HOST_ETCD_PATH", "/deis/router/hosts/"+process.Host.String())
+	hostEtcdPath := commons.Getopt("HOST_ETCD_PATH", "/deis/router/hosts/"+bootProcess.Host.String())
 
-	init.Publish(hostEtcdPath, externalPort)
+	bootProcess.Publish(hostEtcdPath, externalPort)
 	logger.Log.Info("deis-router running...")
 
 	onExit := func() {
@@ -56,7 +54,7 @@ func main() {
 		tail.Cleanup()
 	}
 
-	init.ExecuteOnExit(onExit)
+	bootProcess.ExecuteOnExit(onExit)
 }
 
 func tailFile(path string) {

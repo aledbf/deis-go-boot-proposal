@@ -19,18 +19,18 @@ func main() {
 	etcdPath := commons.Getopt("ETCD_PATH", "/deis/builder")
 	externalPort := commons.Getopt("EXTERNAL_PORT", "2223")
 
-	process := boot.New("tcp", externalPort)
+	bootProcess := boot.New("tcp", externalPort)
 
 	storageDriver := commons.Getopt("STORAGE_DRIVER", "btrfs")
 
-	commons.MkdirEtcd(process.Etcd, etcdPath)
-	commons.MkdirEtcd(process.Etcd, etcdPath+"/users")
+	commons.MkdirEtcd(bootProcess.Etcd, etcdPath)
+	commons.MkdirEtcd(bootProcess.Etcd, etcdPath+"/users")
 
 	// wait until etcd has discarded potentially stale values
-	time.Sleep(process.Timeout + 1)
+	time.Sleep(bootProcess.Timeout + 1)
 
 	// check for stored configuration in deis-store
-	builder.CheckSSHKeysInStore(process.Etcd)
+	builder.CheckSSHKeysInStore(bootProcess.Etcd)
 
 	// remove any pre-existing docker.sock
 	// spawn a docker daemon to run builds
@@ -39,28 +39,28 @@ func main() {
 	startedChan := make(chan bool)
 	logger.Log.Info("starting deis-builder...")
 
-	go process.StartProcessAsChild("docker", "-d", "--storage-driver="+storageDriver, "--bip=172.19.42.1/16")
+	go bootProcess.StartProcessAsChild("docker", "-d", "--storage-driver="+storageDriver, "--bip=172.19.42.1/16")
 
 	// wait for docker to start
 	waitForDocker()
 
 	// HACK: load cedarish, slugbuilder and slugrunner from the local registry
-	checkCedarish(process.Etcd)
+	checkCedarish(bootProcess.Etcd)
 
 	logger.Log.Debug("starting ssh server...")
 	// start an SSH daemon to process `git push` requests
-	process.StartProcessAsChild("/usr/sbin/sshd", "-D", "-e", "-E", "/app/ssh.log")
-	process.WaitForLocalConnection(startedChan, "22")
+	bootProcess.StartProcessAsChild("/usr/sbin/sshd", "-D", "-e", "-E", "/app/ssh.log")
+	bootProcess.WaitForLocalConnection(startedChan, "22")
 	<-startedChan
 
-	process.Publish(etcdPath, externalPort)
+	bootProcess.Publish(etcdPath, externalPort)
 
 	// Wait for terminating signal
 	onExit := func() {
 		logger.Log.Debug("terminating deis-builder...")
 	}
 
-	process.ExecuteOnExit(onExit)
+	bootProcess.ExecuteOnExit(onExit)
 }
 
 func waitForDocker() {
