@@ -5,8 +5,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/deis/go-boot-proposal/commons"
 )
 
 func TestListenTCP(t *testing.T) {
@@ -18,7 +16,7 @@ func TestListenTCP(t *testing.T) {
 
 	port := listeningPort.Addr()
 	effectivePort := strings.Split(port.String(), ":")[1]
-	commons.WaitForPort("tcp", "127.0.0.1", effectivePort, 5*time.Second)
+	WaitForPort("tcp", "127.0.0.1", effectivePort, 5*time.Second)
 }
 
 func TestListenUDP(t *testing.T) {
@@ -30,5 +28,5 @@ func TestListenUDP(t *testing.T) {
 
 	port := listeningPort.Addr()
 	effectivePort := strings.Split(port.String(), ":")[1]
-	commons.WaitForPort("udp", "127.0.0.1", effectivePort, 5*time.Second)
+	WaitForPort("udp", "127.0.0.1", effectivePort, 5*time.Second)
 }
