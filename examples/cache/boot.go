@@ -28,7 +28,7 @@ func main() {
 
 	startedChan := make(chan bool)
 	logger.Log.Info("starting deis-cache...")
-	bootProcess.StartProcessAsChild("/app/bin/redis-server", redisConf)
+	bootProcess.StartProcessAsChild("/app/bin/redis-server", []string{redisConf})
 	bootProcess.WaitForLocalConnection(startedChan)
 	<-startedChan
 

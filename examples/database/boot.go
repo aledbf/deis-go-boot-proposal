@@ -45,10 +45,9 @@ func main() {
 
 	startedChan := make(chan bool)
 	logger.Log.Info("starting deis-database...")
-	bootProcess.StartProcessAsChild("sudo", "-i", "-u", "postgres",
-		"/usr/lib/postgresql/9.3/bin/postgres",
-		"-c", "config-file="+pgConfig,
-		"-c", "listen-addresses="+listenAddress)
+	postgresCommand := "sudo -i -u postgres /usr/lib/postgresql/9.3/bin/postgres" +
+		"-c config-file=" + pgConfig + "-c listen-addresses=" + listenAddress
+	bootProcess.StartProcessAsChild(commons.BuildCommandFromString(postgresCommand))
 	bootProcess.WaitForLocalConnection(startedChan)
 	<-startedChan
 

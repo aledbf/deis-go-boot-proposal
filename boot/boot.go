@@ -61,7 +61,7 @@ func (this *Boot) Publish(path string, port string) {
 }
 
 func (this *Boot) StartProcessAsChild(command string, args []string) {
-	go commons.StartServiceCommand(command, args...)
+	go commons.StartServiceCommand(command, args)
 }
 
 func (this *Boot) WaitForLocalConnection(startedChan chan bool, port ...string) {

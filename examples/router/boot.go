@@ -16,6 +16,7 @@ const (
 	nginxAccessLog string        = "/opt/nginx/logs/access.log"
 	nginxErrorLog  string        = "/opt/nginx/logs/error.log"
 	timeout        time.Duration = 10 * time.Second
+	nginxCommand                 = "/opt/nginx/sbin/nginx -c /opt/nginx/conf/nginx.conf"
 )
 
 func main() {
@@ -40,7 +41,7 @@ func main() {
 
 	startedChan := make(chan bool)
 	logger.Log.Info("starting deis-router...")
-	bootProcess.StartProcessAsChild("/opt/nginx/sbin/nginx", "-c", "/opt/nginx/conf/nginx.conf")
+	bootProcess.StartProcessAsChild(commons.BuildCommandFromString(nginxCommand))
 	bootProcess.WaitForLocalConnection(startedChan)
 	<-startedChan
 

@@ -13,6 +13,10 @@ import (
 	"github.com/deis/go-boot-proposal/logger"
 )
 
+const (
+	sshdCommand = "/usr/sbin/sshd -D -e -E /app/ssh.log"
+)
+
 func main() {
 	logger.Log.Info("starting deis-builder...")
 
@@ -39,7 +43,8 @@ func main() {
 	startedChan := make(chan bool)
 	logger.Log.Info("starting deis-builder...")
 
-	go bootProcess.StartProcessAsChild("docker", "-d", "--storage-driver="+storageDriver, "--bip=172.19.42.1/16")
+	dockerCommand := "docker -d --storage-driver=" + storageDriver + "--bip=172.19.42.1/16"
+	go bootProcess.StartProcessAsChild(commons.BuildCommandFromString(dockerCommand))
 
 	// wait for docker to start
 	waitForDocker()
@@ -49,7 +54,7 @@ func main() {
 
 	logger.Log.Debug("starting ssh server...")
 	// start an SSH daemon to process `git push` requests
-	bootProcess.StartProcessAsChild("/usr/sbin/sshd", "-D", "-e", "-E", "/app/ssh.log")
+	bootProcess.StartProcessAsChild(commons.BuildCommandFromString(sshdCommand))
 	bootProcess.WaitForLocalConnection(startedChan, "22")
 	<-startedChan
 

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/deis/go-boot-proposal/boot"
 	"github.com/deis/go-boot-proposal/commons"
 	"github.com/deis/go-boot-proposal/logger"
@@ -13,7 +15,6 @@ const (
 func main() {
 	externalPort := commons.Getopt("EXTERNAL_PORT", "5000")
 	etcdPath := commons.Getopt("ETCD_PATH", "/deis/registry")
-	hostEtcdPath := commons.Getopt("HOST_ETCD_PATH", "/deis/registry/hosts/"+bootProcess.Host.String())
 
 	bootProcess := boot.New("tcp", externalPort)
 
@@ -33,6 +34,7 @@ func main() {
 	bootProcess.WaitForLocalConnection(startedChan)
 	<-startedChan
 
+	hostEtcdPath := commons.Getopt("HOST_ETCD_PATH", "/deis/registry/hosts/"+bootProcess.Host.String())
 	bootProcess.Publish(hostEtcdPath, externalPort)
 	logger.Log.Info("deis-registry running...")
 
