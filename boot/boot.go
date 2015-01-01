@@ -60,7 +60,7 @@ func (this *Boot) Publish(path string, port string) {
 	go commons.PublishService(this.Etcd, this.Host.String(), path, port, uint64(ttl.Seconds()), timeout)
 }
 
-func (this *Boot) StartProcessAsChild(command string, args ...string) {
+func (this *Boot) StartProcessAsChild(command string, args []string) {
 	go commons.StartServiceCommand(command, args...)
 }
 

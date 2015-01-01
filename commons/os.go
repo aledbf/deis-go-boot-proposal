@@ -1,10 +1,12 @@
 package commons
 
 import (
+	"bytes"
 	"io"
 	"net"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/deis/go-boot-proposal/logger"
@@ -39,7 +41,7 @@ func CopyFile(dst, src string) (int64, error) {
 	return io.Copy(df, sf)
 }
 
-func StartServiceCommand(command string, args ...string) {
+func StartServiceCommand(command string, args []string) {
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -55,6 +57,22 @@ func StartServiceCommand(command string, args ...string) {
 	logger.Log.Printf("command finished with error: %v", err)
 }
 
+func RunCommand(command string, args []string) string {
+	cmd := exec.Command(command, args...)
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+
+	if err != nil {
+		logger.Log.Printf("an error ocurred executing command: %v", err)
+		os.Exit(1)
+	}
+
+	return stdout.String()
+}
+
 func WaitForLocalConnection(startedChan chan bool, protocol string, testPort string) {
 	for {
 		_, err := net.DialTimeout(protocol, "127.0.0.1:"+testPort, networkWaitTime)
@@ -63,4 +81,11 @@ func WaitForLocalConnection(startedChan chan bool, protocol string, testPort str
 			break
 		}
 	}
+}
+
+// BuildCommandFromString parses a string containing a command and multiple
+// arguments and returns a valid tuple to pass to exec.Command
+func BuildCommandFromString(input string) (string, []string) {
+	command := strings.Fields(input)
+	return command[0], command[1:]
 }
