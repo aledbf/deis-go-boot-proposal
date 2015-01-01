@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	randomKeyCommand = "openssl rand -base64 64 | tr -d '\n'"
 	migrationCommand = "sudo -E -u deis /app/manage.py syncdb --migrate --noinput"
 	gunicornCommand  = "sudo -E -u deis gunicorn deis.wsgi -b=0.0.0.0 -w=8 -n=deis --timeout=1200 --pid=/tmp/gunicorn.pid --log-level=info --error-logfile=- --access-logfile=-"
 )
@@ -24,8 +23,8 @@ func main() {
 	commons.MkdirEtcd(bootProcess.Etcd, "/deis/domains")
 
 	protocol := commons.Getopt("DEIS_PROTOCOL", "http")
-	secretKey := commons.Getopt("DEIS_SECRET_KEY", getRandomKey())
-	builderKey := commons.Getopt("DEIS_BUILDER_KEY", getRandomKey())
+	secretKey := commons.Getopt("DEIS_SECRET_KEY", commons.RandomSSLKey())
+	builderKey := commons.Getopt("DEIS_BUILDER_KEY", commons.RandomSSLKey())
 	registrationEnabled := commons.Getopt("registrationEnabled", "1")
 	webEnabled := commons.Getopt("registrationEnabled", "0")
 
@@ -58,9 +57,4 @@ func main() {
 	}
 
 	bootProcess.ExecuteOnExit(onExit)
-}
-
-func getRandomKey() string {
-	output := commons.RunCommand(commons.BuildCommandFromString(randomKeyCommand))
-	return output
 }

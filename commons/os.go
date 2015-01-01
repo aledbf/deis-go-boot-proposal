@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	networkWaitTime time.Duration = 5 * time.Second
+	networkWaitTime  time.Duration = 5 * time.Second
+	randomKeyCommand               = "openssl rand -base64 64 | tr -d '\n'"
 )
 
 // Getopt return the value of and environment variable or a default
@@ -88,4 +89,9 @@ func WaitForLocalConnection(startedChan chan bool, protocol string, testPort str
 func BuildCommandFromString(input string) (string, []string) {
 	command := strings.Fields(input)
 	return command[0], command[1:]
+}
+
+func RandomSSLKey() string {
+	output := RunCommand(BuildCommandFromString(randomKeyCommand))
+	return output
 }
