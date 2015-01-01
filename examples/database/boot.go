@@ -55,7 +55,7 @@ func main() {
 	bootProcess.Publish(etcdPath, externalPort)
 	logger.Log.Info("deis-database running...")
 
-	// schedule periodic backup execution
+	// schedule periodic backups using wal-e
 	scheduleBackup := cron.New()
 	scheduleBackup.AddFunc("@every "+backupFrequency, func() { backupPostgres(backupsToRetain) })
 	scheduleBackup.Start()
