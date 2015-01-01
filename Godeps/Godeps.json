@@ -6,6 +6,11 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "bitbucket.org/kardianos/osext",
+			"Comment": "null-15",
+			"Rev": "44140c5fc69ecf1102c5ef451d73cd98ef59b178"
+		},
+		{
 			"ImportPath": "github.com/ActiveState/tail",
 			"Rev": "068b72961a6bc5b4a82cf4fc14ccc724c0cfa73a"
 		},
@@ -36,6 +41,19 @@
 			"ImportPath": "github.com/howeyc/fsnotify",
 			"Comment": "v0.9.0-11-g6b1ef89",
 			"Rev": "6b1ef893dc11e0447abda6da20a5203481878dda"
+		},
+		{
+			"ImportPath": "github.com/progrium/go-basher",
+			"Rev": "ed7ac329f1a48b8c26cdf924cb1a2d797737b050"
+		},
+		{
+			"ImportPath": "github.com/robfig/cron",
+			"Comment": "v1-2-g67823cd",
+			"Rev": "67823cd24dece1b04cced3a0a0b3ca2bc84d875e"
+		},
+		{
+			"ImportPath": "github.com/walle/targz",
+			"Rev": "57fe4206da5abf7dd3901b4af3891ec2f08c7b08"
 		},
 		{
 			"ImportPath": "gopkg.in/tomb.v1",
