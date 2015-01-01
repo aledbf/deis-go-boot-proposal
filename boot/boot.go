@@ -64,12 +64,13 @@ func (this *Boot) StartProcessAsChild(command string, args ...string) {
 	go commons.StartServiceCommand(command, args...)
 }
 
-func (this *Boot) WaitForLocalConnection(startedChan chan bool, port string) {
-	if port == "" {
-		port = this.Port
+func (this *Boot) WaitForLocalConnection(startedChan chan bool, port ...string) {
+	portToCheck := this.Port
+	if len(port) == 1 {
+		portToCheck = port[1]
 	}
 
-	go commons.WaitForLocalConnection(startedChan, this.Protocol, port)
+	go commons.WaitForLocalConnection(startedChan, this.Protocol, portToCheck)
 }
 
 // ExecuteOnExit tasks to be executed when the process ends (included ctrl+c)
