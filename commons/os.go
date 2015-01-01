@@ -2,6 +2,7 @@ package commons
 
 import (
 	"bytes"
+	"crypto/rand"
 	"io"
 	"net"
 	"os"
@@ -13,8 +14,7 @@ import (
 )
 
 const (
-	networkWaitTime  time.Duration = 5 * time.Second
-	randomKeyCommand               = "openssl rand -base64 64 | tr -d '\n'"
+	networkWaitTime time.Duration = 5 * time.Second
 )
 
 // Getopt return the value of and environment variable or a default
@@ -87,11 +87,22 @@ func WaitForLocalConnection(startedChan chan bool, protocol string, testPort str
 // BuildCommandFromString parses a string containing a command and multiple
 // arguments and returns a valid tuple to pass to exec.Command
 func BuildCommandFromString(input string) (string, []string) {
-	command := strings.Fields(input)
-	return command[0], command[1:]
+	command := strings.Split(input, " ")
+
+	if len(command) > 1 {
+		return command[0], command[1:]
+	}
+
+	return command[0], []string{}
 }
 
-func RandomSSLKey() string {
-	output := RunCommand(BuildCommandFromString(randomKeyCommand))
-	return output
+func RandomKey() string {
+	size := 64
+	alphanum := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	var bytes = make([]byte, size)
+	rand.Read(bytes)
+	for i, b := range bytes {
+		bytes[i] = alphanum[b%byte(len(alphanum))]
+	}
+	return string(bytes)
 }

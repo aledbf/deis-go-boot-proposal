@@ -19,7 +19,7 @@ func main() {
 	bootProcess := boot.New("tcp", externalPort)
 
 	protocol := commons.Getopt("REGISTRY_PROTOCOL", "http")
-	secretKey := commons.Getopt("REGISTRY_SECRET_KEY", commons.RandomSSLKey())
+	secretKey := commons.Getopt("REGISTRY_SECRET_KEY", commons.RandomKey())
 	bucketName := commons.Getopt("BUCKET_NAME", "registry")
 
 	commons.SetDefaultEtcd(bootProcess.Etcd, etcdPath+"/protocol", protocol)

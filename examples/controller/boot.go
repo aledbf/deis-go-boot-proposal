@@ -23,8 +23,8 @@ func main() {
 	commons.MkdirEtcd(bootProcess.Etcd, "/deis/domains")
 
 	protocol := commons.Getopt("DEIS_PROTOCOL", "http")
-	secretKey := commons.Getopt("DEIS_SECRET_KEY", commons.RandomSSLKey())
-	builderKey := commons.Getopt("DEIS_BUILDER_KEY", commons.RandomSSLKey())
+	secretKey := commons.Getopt("DEIS_SECRET_KEY", commons.RandomKey())
+	builderKey := commons.Getopt("DEIS_BUILDER_KEY", commons.RandomKey())
 	registrationEnabled := commons.Getopt("registrationEnabled", "1")
 	webEnabled := commons.Getopt("registrationEnabled", "0")
 
