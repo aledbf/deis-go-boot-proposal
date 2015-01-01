@@ -1,6 +1,6 @@
 # GOOS=linux GOARCH=amd64
 
-BINARIES := cache router
+BINARIES := cache database router
 BINARY_DEST_DIR := bin
 
 all: build test
