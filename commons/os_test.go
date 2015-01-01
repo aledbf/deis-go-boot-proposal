@@ -7,7 +7,7 @@ import (
 func TestGetoptEmpty(t *testing.T) {
 	value := Getopt("", "")
 	if value != "" {
-		t.Fatalf("Expected '' as value of empty env name", value)
+		t.Fatalf("Expected '' as value of empty env name but %s returned", value)
 	}
 }
 
