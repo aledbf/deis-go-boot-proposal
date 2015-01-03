@@ -1,6 +1,7 @@
 package commons
 
 import (
+	"errors"
 	"time"
 
 	"github.com/coreos/go-etcd/etcd"
@@ -8,10 +9,7 @@ import (
 )
 
 func SetDefaultEtcd(client *etcd.Client, key, value string) {
-	_, err := client.Set(key, value, 0)
-	if err != nil {
-		logger.Log.Error(err)
-	}
+	SetEtcd(client, key, value, 0)
 }
 
 func MkdirEtcd(client *etcd.Client, path string) {
@@ -21,9 +19,9 @@ func MkdirEtcd(client *etcd.Client, path string) {
 	}
 }
 
-// wait for the required keys for the
-// backup/restore of ssh configuration
-func WaitForKeysEtcd(client *etcd.Client, keys []string) {
+// WaitForKeysEtcd wait for the required keys up to the timeout or forever if is nil
+func WaitForKeysEtcd(client *etcd.Client, keys []string, ttl time.Duration) error {
+	start := time.Now()
 	wait := true
 
 	for {
@@ -36,12 +34,16 @@ func WaitForKeysEtcd(client *etcd.Client, keys []string) {
 		}
 
 		if !wait {
-			break
+			return nil
 		}
 
 		logger.Log.Debug("waiting for missing etcd keys...")
 		time.Sleep(1 * time.Second)
 		wait = false
+
+		if time.Since(start) > ttl {
+			return errors.New("maximum ttl reached. aborting")
+		}
 	}
 }
 
@@ -78,7 +80,7 @@ func SetEtcd(client *etcd.Client, key, value string, ttl uint64) {
 	}
 }
 
-// Publish a service to etcd periodcally
+// Publish a service to etcd periodically
 func PublishService(
 	client *etcd.Client,
 	host string,

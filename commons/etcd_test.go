@@ -82,5 +82,26 @@ func TestMkdirEtcd(t *testing.T) {
 	if len(values) != 2 {
 		t.Fatalf("Expected '%v' arguments but returned '%v'", 2, len(values))
 	}
+}
 
+func TestWaitForKeysEtcd(t *testing.T) {
+	startEtcd()
+	defer stopEtcd()
+
+	etcdClient := etcd.NewClient([]string{"http://localhost:4001"})
+	SetEtcd(etcdClient, "/key", "value", 0)
+	start := time.Now()
+	err := WaitForKeysEtcd(etcdClient, []string{"/key"}, (10 * time.Second))
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	end := time.Since(start)
+	if end.Seconds() > (2 * time.Second).Seconds() {
+		t.Fatalf("Expected '%vs' but returned '%vs'", 2, end.Seconds())
+	}
+
+	err = WaitForKeysEtcd(etcdClient, []string{"/key2"}, (2 * time.Second))
+	if err == nil {
+		t.Fatalf("Expected an error")
+	}
 }
