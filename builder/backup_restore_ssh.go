@@ -51,7 +51,7 @@ func CheckSSHKeysInStore(client *etcd.Client) {
 	file, err := os.OpenFile(hostsFile, os.O_APPEND|os.O_WRONLY, 0600)
 	defer file.Close()
 
-	ip := strings.Split(storeHosts[0].Value, ":")
+	ip := strings.Split(storeHosts[0], ":")
 	if _, err = file.WriteString(ip[0] + " " + storeHost); err != nil {
 		logger.Log.Debugf("%v", err)
 		return

@@ -39,7 +39,7 @@ func WaitForKeysEtcd(client *etcd.Client, keys []string) {
 			break
 		}
 
-		logger.Log.Info("waiting for missing etcd keys...")
+		logger.Log.Debug("waiting for missing etcd keys...")
 		time.Sleep(1 * time.Second)
 		wait = false
 	}
@@ -48,19 +48,27 @@ func WaitForKeysEtcd(client *etcd.Client, keys []string) {
 func GetEtcd(client *etcd.Client, key string) string {
 	result, err := client.Get(key, false, false)
 	if err != nil {
+		logger.Log.Debugf("%v", err)
 		return ""
 	}
 
 	return result.Node.Value
 }
 
-func GetListEtcd(client *etcd.Client, key string) etcd.Nodes {
-	result, err := client.Get(key, true, false)
+func GetListEtcd(client *etcd.Client, key string) []string {
+	values, err := client.Get(key, true, false)
 	if err != nil {
-		return nil
+		logger.Log.Debugf("%v", err)
+		return []string{}
 	}
 
-	return result.Node.Nodes
+	result := []string{}
+	for _, node := range values.Node.Nodes {
+		result = append(result, node.Value)
+	}
+
+	logger.Log.Infof("%v", result)
+	return result
 }
 
 func SetEtcd(client *etcd.Client, key, value string, ttl uint64) {
