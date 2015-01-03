@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"syscall"
-	"time"
 
 	"github.com/ActiveState/tail"
 	"github.com/deis/go-boot-proposal/boot"
@@ -12,11 +11,10 @@ import (
 )
 
 const (
-	gitLogFile     string        = "/opt/nginx/logs/git.log"
-	nginxAccessLog string        = "/opt/nginx/logs/access.log"
-	nginxErrorLog  string        = "/opt/nginx/logs/error.log"
-	timeout        time.Duration = 10 * time.Second
-	nginxCommand                 = "/opt/nginx/sbin/nginx -c /opt/nginx/conf/nginx.conf"
+	nginxCommand          = "/opt/nginx/sbin/nginx -c /opt/nginx/conf/nginx.conf"
+	gitLogFile     string = "/opt/nginx/logs/git.log"
+	nginxAccessLog string = "/opt/nginx/logs/access.log"
+	nginxErrorLog  string = "/opt/nginx/logs/error.log"
 )
 
 func main() {
