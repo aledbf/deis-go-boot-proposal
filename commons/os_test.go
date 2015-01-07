@@ -32,7 +32,7 @@ func TestBuildCommandFromStringSingle(t *testing.T) {
 	}
 
 	if len(args) != 0 {
-		t.Fatalf("Expected '%s' arguments but %s returned", 0, len(args))
+		t.Fatalf("Expected '%v' arguments but %v returned", 0, len(args))
 	}
 }
 
@@ -43,13 +43,13 @@ func TestBuildCommandFromStringNoArgs(t *testing.T) {
 	}
 
 	if len(args) != 1 {
-		t.Fatalf("Expected '%s' arguments but %s returned", 1, len(args))
+		t.Fatalf("Expected '%v' arguments but %v returned", 1, len(args))
 	}
 }
 
 func TestRandomKey(t *testing.T) {
 	random := RandomKey()
 	if len(random) != 64 {
-		t.Fatalf("Expected '%v' as length of the generated key but %s returned", 64, len(random))
+		t.Fatalf("Expected '%v' as length of the generated key but %v returned", 64, len(random))
 	}
 }
